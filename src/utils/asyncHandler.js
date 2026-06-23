@@ -1,6 +1,6 @@
 // wrapper for async functions to handle errors and pass them to the next middleware
 
-const asyncHandler = (requestHandler) => {
+const asyncHandler = (requestHandler) => { //request handler is the controller
     return (req, res, next) => {
         Promise.resolve(requestHandler(req, res, next)).catch((err) => next(err))
     }
@@ -9,6 +9,17 @@ const asyncHandler = (requestHandler) => {
 
 export { asyncHandler }
 
+
+/*
+Take any async controller
+       ↓
+Wrap it in try/catch automatically
+       ↓
+If error happens
+       ↓
+Send error to Express error middleware
+
+*/
 
 
 
