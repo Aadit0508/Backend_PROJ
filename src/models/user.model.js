@@ -56,7 +56,7 @@ userSchema.pre("save", async function(next){
     // to ensure that the password is only hashed when it is modified or created, we check if the password field has been modified using this.isModified("password"). If it hasn't been modified, we simply call next() to proceed without hashing. If it has been modified, we hash the password using bcrypt.hashSync(this.password, 10) and then call next() to continue with the save operation.
     if(!this.isModified("password"))return next();
 
-    this.password=bcrypt.hashSync(this.password, 10)
+    this.password=await bcrypt.hashSync(this.password, 10)
     next()
 })
 
