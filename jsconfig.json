@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022"
+  },
+  "exclude": ["node_modules"]
+}
+
+// // Setting "moduleResolution": "NodeNext" explicitly told VS Code: "Hey, look through the whole project folder, track ES modules, and remember where everything is."
