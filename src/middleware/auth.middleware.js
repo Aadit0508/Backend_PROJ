@@ -24,6 +24,7 @@ export const verifyJWT = asyncHandler(async(req, _, next) => {
     //This is one of the most useful parts.
     // Now every route after this middleware can do
     // console.log(req.user)
+    // express next() is not the same as mongoose next()
         req.user = user;
         next()
     } catch (error) {
