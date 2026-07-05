@@ -16,7 +16,7 @@ const userSchema = new Schema(
             type: String,
             required: true,
             unique: true,
-            lowecase: true,
+            lowercase: true,
             trim: true, 
         },
         fullName: {
@@ -54,12 +54,13 @@ const userSchema = new Schema(
 
 userSchema.pre("save", async function(next){
     // to ensure that the password is only hashed when it is modified or created, we check if the password field has been modified using this.isModified("password"). If it hasn't been modified, we simply call next() to proceed without hashing. If it has been modified, we hash the password using bcrypt.hashSync(this.password, 10) and then call next() to continue with the save operation.
-    if(!this.isModified("password"))return next();
+    // NO next() needed in modern mongoose versions as it automatically moves to the next operation after the promise is resolved
+    if(!this.isModified("password"))return;
 
-    this.password=await bcrypt.hashSync(this.password, 10)
+    this.password=bcrypt.hashSync(this.password, 10)
 })
 
-userSchema.methods.isPasswordCorrect = async function(password){
+userSchema.methods.isPasswordCorrect =function(password){
     return bcrypt.compareSync(password, this.password)
 }
 
