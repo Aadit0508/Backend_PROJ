@@ -43,6 +43,16 @@ const registerUser= asyncHandler(async (req, res) => {
     ) {
         throw new ApiError(400, "All fields are required")
     }
+    
+    /* const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+        throw new ApiError(
+            400,
+            "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character."
+        );
+    } */
 
     const existedUser= await User.findOne({
         $or: [{username},{email}]
@@ -222,4 +232,35 @@ const refreshAccessToken= asyncHandler(async(req,res)=>{
     
 
 })
-export {registerUser,loginUser,logoutUser,refreshAccessToken}
+
+const changeCurrentPassword = asyncHandler(async(req,res)=>{
+    const {oldPassword, newPassword} = req.body
+    // if we also get a confrim password field then we can compare that to the new password adn throw and error if they are not the same
+
+    // using the auth middleware
+    const user=await User.findById(req.user?.id)
+
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+    if (!isPasswordCorrect) {
+        throw new ApiError(400, "Invalid old password")
+    }
+
+    user.password = newPassword
+    await user.save({validateBeforeSave: false})
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password changed successfully"))
+
+})
+
+const getCurrentUser = asyncHandler(async(req,res)=>{
+    return res
+    .status(200)
+    .json(new ApiResponse(
+        200,
+        req.user,
+        "User fetched successfully"
+    ))
+})
+export {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser}
