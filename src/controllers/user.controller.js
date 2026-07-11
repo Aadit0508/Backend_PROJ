@@ -191,7 +191,11 @@ const options = {
 })
 
 const refreshAccessToken= asyncHandler(async(req,res)=>{
-    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
+    const incomingRefreshToken = req.cookies?.refreshToken || req.body?.refreshToken
+
+    console.log("Cookies:", req.cookies);
+    console.log("Body:", req.body);
+    console.log("Incoming:", incomingRefreshToken);
 
     if(!incomingRefreshToken){
         throw new ApiError(401, "unauthorised request")
@@ -213,7 +217,7 @@ const refreshAccessToken= asyncHandler(async(req,res)=>{
             secure: true
         }
     
-        const {accessToken, newRefreshToken} = await generateAccessAndRefereshTokens(user._id)
+        const {accessToken, newRefreshToken} = await generateAccessAndRefreshTokens(user._id)
     
         return res
         .status(200)
