@@ -1,5 +1,5 @@
-import mongoose, {Schema} from 'mongoose';
-import mongoosePaginate from 'mongoose-paginate-v2';
+import mongoose, {Schema} from "mongoose";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const videoSchema = new Schema(
     {
@@ -42,7 +42,6 @@ const videoSchema = new Schema(
     }
 )
 
-// mongoose-paginate-v2 plugin is used to add pagination capabilities to the video schema. This allows for easy retrieval of video records in a paginated manner, which is useful for displaying videos in a user interface without overwhelming the client with too much data at once.
-videoSchema.plugin(mongoosePaginate);
+videoSchema.plugin(mongooseAggregatePaginate)
 
-export const Video = mongoose.model('Video',videoSchema);
+export const Video = mongoose.model("Video", videoSchema)
