@@ -310,7 +310,7 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
                 avatar: avatar.url
             }
         },
-        {set: true}
+        {new: true}
     ).select("-password -refreshToken")
     
     return res
@@ -341,7 +341,7 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
                 coverImage: coverImage.url
             }
         },
-        {set: true}
+        {new: true}
     ).select("-password -refreshToken")
     
     return res
@@ -365,9 +365,12 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
                 username: username?.toLowerCase()
             }
         },
-        //Find every subscription whose channel equals Aadit's _id. (people who have subsribed to me)
+        //Find every subscription whose channel _id equals Aadit's _id. (people who have subsribed to me)
         {
             $lookup : {
+                // local field is user id
+                // foregin field in the subsrciption collection also references user id somewhere
+                // comparing ids only 
                from: "subscriptions",
                localField: "_id",
                foreignField: "channel",
@@ -427,4 +430,85 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
     )
 })
 
-export {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails,updateUserAvatar,updateUserCoverImage}
+const getWatchHistory = asyncHandler(async(req,res)=>{
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user._id)
+            }
+        },
+        {   //$lookup always returns an array, even if only one document matches.
+            $lookup: {
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        fullName: 1,
+                                        username: 1,
+                                        avatar: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields:{
+                            owner:{
+                                //first value in the array returned by the lookup is the owner of the video
+                                $first: "$owner"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ])
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            user[0].watchHistory,
+            "Watch history fetched successfully"
+        )
+    )
+
+    /*
+    So
+
+    $addFields:{
+        owner:{
+            $first:"$owner"
+        }
+    }
+
+    takes
+
+    [
+        {
+            fullName:"Hitesh",
+            username:"hitesh"
+        }
+    ]
+
+    and converts it to
+
+    {
+        fullName:"Hitesh",
+        username:"hitesh"
+    } 
+        */
+})
+
+export {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails,updateUserAvatar,updateUserCoverImage,getUserChannelProfile,getWatchHistory}
