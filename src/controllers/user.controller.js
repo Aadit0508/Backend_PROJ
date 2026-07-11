@@ -365,6 +365,7 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
                 username: username?.toLowerCase()
             }
         },
+        //Find every subscription whose channel equals Aadit's _id. (people who have subsribed to me)
         {
             $lookup : {
                from: "subscriptions",
@@ -373,6 +374,7 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
                as : "subscribers"
             }
         },
+        //Which channels has Aadit subscribed to?
         {
             $lookup : {
                from: "subscriptions",
@@ -390,6 +392,7 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
                     $size: "$subscribedTo"
                 },
                 isSubscribed: {
+                    // agar woh user subscribers ki list mei hai toh true otherwise false
                     $cond: {
                         if: {$in: [req.user?._id, "$subscribers.subscriber"]},
                         then: true,
